@@ -295,8 +295,6 @@ function createProjectCard(project, index, lang = 'en') {
         card.style.transform = 'translateY(0)';
     }, index * 100);
 
-    const viewDetailsText = lang === 'ar' ? 'عرض التفاصيل' : lang === 'fr' ? 'Voir les détails' : 'View Details';
-
     // Create image element separately for better error handling
     const img = document.createElement('img');
     img.src = project.image;
@@ -314,7 +312,6 @@ function createProjectCard(project, index, lang = 'en') {
             <p class="project-location">${project.location}</p>
             <p class="project-description">${project.description}</p>
             <div class="project-price">${project.price}</div>
-            <a href="#" class="view-details-btn">${viewDetailsText}</a>
         </div>
     `;
     
