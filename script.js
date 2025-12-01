@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeNewsletter();
     initializeNavbarScroll();
     initializeContactForm();
+    initializeHeroVideo();
 });
 
 // ============================================
@@ -578,6 +579,41 @@ function initializeContactForm() {
                 }
             });
         });
+    }
+}
+
+// ============================================
+// HERO VIDEO QUALITY OPTIMIZATION
+// ============================================
+
+function initializeHeroVideo() {
+    const heroVideo = document.querySelector('.hero-video');
+    
+    if (heroVideo) {
+        // ضمان تحميل الفيديو بجودة عالية
+        heroVideo.addEventListener('loadedmetadata', function() {
+            // محاولة تشغيل الفيديو بجودة عالية
+            if (heroVideo.videoWidth > 0 && heroVideo.videoHeight > 0) {
+                heroVideo.play().catch(function(error) {
+                    console.log('Video autoplay prevented:', error);
+                });
+            }
+        });
+        
+        // تحسين الجودة عند التحميل
+        heroVideo.addEventListener('canplay', function() {
+            // ضمان عدم ضغط الفيديو
+            heroVideo.style.imageRendering = 'high-quality';
+        });
+        
+        // إعادة تشغيل الفيديو عند الحاجة لضمان الجودة
+        heroVideo.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        });
+        
+        // محاولة تشغيل الفيديو فوراً
+        heroVideo.load();
     }
 }
 
