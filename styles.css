@@ -1799,6 +1799,16 @@ section {
     [dir="rtl"] .language-switcher {
         margin-right: 1rem;
     }
+    
+    /* إصلاح قائمة البرغر في اللغة العربية - تظهر مثل الإنجليزية */
+    [dir="rtl"] .nav-menu {
+        flex-direction: column !important;
+        text-align: right;
+    }
+    
+    [dir="rtl"] .nav-link {
+        text-align: right;
+    }
 }
 
 /* ============================================

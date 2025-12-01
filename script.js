@@ -197,6 +197,7 @@ function initializeNavigation() {
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('navMenu');
     const navLinks = document.querySelectorAll('.nav-link');
+    const logo = document.querySelector('.logo');
 
     // Toggle mobile menu
     if (hamburger) {
@@ -213,6 +214,14 @@ function initializeNavigation() {
             navMenu.classList.remove('active');
         });
     });
+
+    // Refresh page when clicking on logo or brand text
+    if (logo) {
+        logo.style.cursor = 'pointer';
+        logo.addEventListener('click', function() {
+            window.location.reload();
+        });
+    }
 
     // Close menu when clicking outside
     document.addEventListener('click', function(event) {
