@@ -590,13 +590,36 @@ function initializeHeroVideo() {
     const heroVideo = document.querySelector('.hero-video');
     
     if (heroVideo) {
+        // محاولة تحميل الفيديو بمسارات مختلفة (للتأكد من العمل على GitHub Pages)
+        const videoSources = ['./vv.mp4', 'vv.mp4', '/vv.mp4'];
+        let currentSourceIndex = 0;
+        
+        function tryLoadVideo() {
+            if (currentSourceIndex < videoSources.length) {
+                heroVideo.src = videoSources[currentSourceIndex];
+                heroVideo.load();
+            }
+        }
+        
         // ضمان تحميل الفيديو بجودة عالية
         heroVideo.addEventListener('loadedmetadata', function() {
             // محاولة تشغيل الفيديو بجودة عالية
             if (heroVideo.videoWidth > 0 && heroVideo.videoHeight > 0) {
                 heroVideo.play().catch(function(error) {
                     console.log('Video autoplay prevented:', error);
+                    // محاولة مسار آخر إذا فشل
+                    currentSourceIndex++;
+                    tryLoadVideo();
                 });
+            }
+        });
+        
+        // معالجة الأخطاء - محاولة مسار آخر
+        heroVideo.addEventListener('error', function() {
+            console.log('Video load error, trying next source...');
+            currentSourceIndex++;
+            if (currentSourceIndex < videoSources.length) {
+                tryLoadVideo();
             }
         });
         
@@ -612,8 +635,8 @@ function initializeHeroVideo() {
             this.play();
         });
         
-        // محاولة تشغيل الفيديو فوراً
-        heroVideo.load();
+        // محاولة تحميل الفيديو فوراً
+        tryLoadVideo();
     }
 }
 
