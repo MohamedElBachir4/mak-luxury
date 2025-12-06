@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MAK Luxury</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #D4AF37;
+            --secondary-color: #1a1a1a;
+            --text-color: #333;
+            --sidebar-width: 260px;
+            --bg-color: #f5f7fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary-color);
+            color: #fff;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+            font-size: 20px;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            margin-top: 20px;
+            color: #e74c3c !important;
+        }
+
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.1) !important;
+            border-left-color: #e74c3c !important;
+        }
+
+        .content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab-btn:hover {
+            background: #f8f9fa;
+            color: var(--secondary-color);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-new {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-view {
+            background: #3498db;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .phone-cell a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .phone-cell a:hover {
+            color: #3498db;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary-color);
+        }
+
+        .loading-spinner i {
+            font-size: 48px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-form-group label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .modal-form-group input,
+        .modal-form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .modal-form-group input:focus,
+        .modal-form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: #1a1a1a;
+        }
+
+        .modal-btn-secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+        }
+
+        .link-cell a {
+            color: #3498db;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .link-cell a:hover {
+            text-decoration: underline;
+        }
+
+        .status-scheduled {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>MAK LUXURY</h3>
+        </div>
+        <div class="sidebar-menu">
+            <a href="#" class="active">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="logout.html" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">Admin Dashboard</h1>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600; color: #1a1a1a;" id="adminName">Admin</div>
+                    <div style="font-size: 12px; color: #999;" id="adminEmail">admin@makluxury.com</div>
+                </div>
+                <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1a1a1a; font-weight: 700; font-size: 18px;" id="adminAvatar">A</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('submissions')">
+                <i class="fas fa-envelope"></i> Submissions
+            </button>
+            <button class="tab-btn" onclick="switchTab('meetings')">
+                <i class="fas fa-calendar-alt"></i> Meetings
+            </button>
+        </div>
+
+        <!-- Submissions Tab -->
+        <div id="submissions" class="tab-content active">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Country Code</th>
+                            <th>Preferred Language</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissionsTableBody">
+                        <tr>
+                            <td colspan="8">
+                                <div class="loading-spinner">
+                                    <i class="fas fa-spinner"></i>
+                                    <p>Loading submissions...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Meetings Tab -->
+        <div id="meetings" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Meetings Management</h2>
+                <button onclick="openAddMeetingModal()" style="background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%); color: #1a1a1a; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-plus"></i> Add Meeting
+                </button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Phone</th>
+                            <th>Meeting Link</th>
+                            <th>Date Meeting</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="meetingsTableBody">
+                        <tr>
+                            <td colspan="8">
+                                <div class="loading-spinner">
+                                    <i class="fas fa-spinner"></i>
+                                    <p>Loading meetings...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Meeting Modal -->
+    <div id="meetingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Meeting</h3>
+                <button class="close-btn" onclick="closeMeetingModal()">&times;</button>
+            </div>
+            <form id="meetingForm">
+                <div class="modal-form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="meetingLink">Meeting Link *</label>
+                    <input type="url" id="meetingLink" placeholder="https://zoom.us/j/..." required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="dateMeeting">Date Meeting *</label>
+                    <input type="datetime-local" id="dateMeeting" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="status">Status *</label>
+                    <select id="status" required>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-secondary" onclick="closeMeetingModal()">Cancel</button>
+                    <button type="submit" class="modal-btn modal-btn-primary" id="submitMeetingBtn">Add Meeting</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc, onSnapshot, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDw5Kh7o7VOL6N_AwQ0NYYkBuhZZr44VTc",
+            authDomain: "mak-luxury-1f1a5.firebaseapp.com",
+            projectId: "mak-luxury-1f1a5",
+            storageBucket: "mak-luxury-1f1a5.firebasestorage.app",
+            messagingSenderId: "89094290310",
+            appId: "1:89094290310:web:c44ea5243211474f944a07"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Check if user is logged in
+        if (localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // Display admin info
+        const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
+        if (adminData.name) {
+            document.getElementById('adminName').textContent = adminData.name;
+            document.getElementById('adminEmail').textContent = adminData.email;
+            document.getElementById('adminAvatar').textContent = adminData.name.charAt(0).toUpperCase();
+        }
+
+        let currentEditingMeetingId = null;
+
+        // Tab switching
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Load submissions from Firebase with real-time updates
+        function loadSubmissions() {
+            const tbody = document.getElementById('submissionsTableBody');
+            
+            // Real-time listener
+            onSnapshot(collection(db, "contacts"), (querySnapshot) => {
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No submissions found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = "";
+                
+                querySnapshot.forEach((docSnap, index) => {
+                    const sub = docSnap.data();
+                    const createdAt = sub.createdAt?.toDate ? sub.createdAt.toDate() : new Date();
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${index + 1}</td>
+                        <td><strong>${sub.firstName} ${sub.lastName}</strong></td>
+                        <td>${sub.email}</td>
+                        <td class="phone-cell">
+                            <a href="tel:${sub.phoneCode}${sub.phoneNumber}">
+                                <i class="fas fa-phone"></i> ${sub.phoneNumber}
+                            </a>
+                        </td>
+                        <td>${sub.phoneCode}</td>
+                        <td>${sub.language.toUpperCase()}</td>
+                        <td>${createdAt.toLocaleDateString()} ${createdAt.toLocaleTimeString()}</td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewSubmission('${docSnap.id}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteSubmission('${docSnap.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }, (error) => {
+                console.error("Error loading submissions:", error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Error loading submissions</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Load meetings from Firebase with real-time updates
+        function loadMeetings() {
+            const tbody = document.getElementById('meetingsTableBody');
+            
+            // Real-time listener
+            onSnapshot(collection(db, "meetings"), (querySnapshot) => {
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <p>No meetings found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = "";
+                
+                querySnapshot.forEach((docSnap, index) => {
+                    const meeting = docSnap.data();
+                    
+                    // Parse dates
+                    let createdAtStr = 'N/A';
+                    if (meeting.created_at) {
+                        try {
+                            const createdAt = new Date(meeting.created_at);
+                            createdAtStr = createdAt.toLocaleDateString() + ' ' + createdAt.toLocaleTimeString();
+                        } catch (e) {
+                            createdAtStr = meeting.created_at;
+                        }
+                    }
+
+                    let dateMeetingStr = 'N/A';
+                    if (meeting.date_meeting) {
+                        try {
+                            const dateMeeting = new Date(meeting.date_meeting);
+                            dateMeetingStr = dateMeeting.toLocaleDateString() + ' ' + dateMeeting.toLocaleTimeString();
+                        } catch (e) {
+                            dateMeetingStr = meeting.date_meeting;
+                        }
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${index + 1}</td>
+                        <td><strong>${meeting.full_name || 'N/A'}</strong></td>
+                        <td class="phone-cell">
+                            <a href="tel:${meeting.phone || ''}">
+                                <i class="fas fa-phone"></i> ${meeting.phone || 'N/A'}
+                            </a>
+                        </td>
+                        <td class="link-cell">
+                            ${meeting.meeting_link ? `<a href="${meeting.meeting_link}" target="_blank"><i class="fas fa-link"></i> Open Meeting</a>` : 'N/A'}
+                        </td>
+                        <td>${dateMeetingStr}</td>
+                        <td>
+                            <span class="status-badge status-${meeting.status || 'pending'}">${meeting.status || 'Pending'}</span>
+                        </td>
+                        <td>${createdAtStr}</td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick="editMeeting('${docSnap.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="action-btn btn-delete" onclick="deleteMeeting('${docSnap.id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }, (error) => {
+                console.error("Error loading meetings:", error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Error loading meetings</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // View submission details
+        window.viewSubmission = async function(docId) {
+            try {
+                const docRef = doc(db, "contacts", docId);
+                const docSnap = await getDocs(collection(db, "contacts"));
+                
+                docSnap.forEach((d) => {
+                    if (d.id === docId) {
+                        const sub = d.data();
+                        const createdAt = sub.createdAt?.toDate ? sub.createdAt.toDate() : new Date();
+                        alert(`Submission Details:\n\nName: ${sub.firstName} ${sub.lastName}\nEmail: ${sub.email}\nPhone: ${sub.phoneCode} ${sub.phoneNumber}\nLanguage: ${sub.language}\nDate: ${createdAt.toLocaleString()}`);
+                    }
+                });
+            } catch (error) {
+                console.error("Error viewing submission:", error);
+                alert("Error viewing submission!");
+            }
+        }
+
+        // Delete submission
+        window.deleteSubmission = async function(docId) {
+            if (confirm('Are you sure you want to delete this submission?')) {
+                try {
+                    await deleteDoc(doc(db, "contacts", docId));
+                    // Real-time listener will automatically update the table
+                } catch (error) {
+                    console.error("Error deleting submission:", error);
+                    alert("Error deleting submission!");
+                }
+            }
+        }
+
+        // Delete meeting
+        window.deleteMeeting = async function(docId) {
+            if (confirm('Are you sure you want to delete this meeting?')) {
+                try {
+                    await deleteDoc(doc(db, "meetings", docId));
+                    // Real-time listener will automatically update the table
+                } catch (error) {
+                    console.error("Error deleting meeting:", error);
+                    alert("Error deleting meeting!");
+                }
+            }
+        }
+
+        // Open add meeting modal
+        window.openAddMeetingModal = function() {
+            currentEditingMeetingId = null;
+            document.getElementById('modalTitle').textContent = 'Add New Meeting';
+            document.getElementById('submitMeetingBtn').textContent = 'Add Meeting';
+            document.getElementById('meetingForm').reset();
+            document.getElementById('meetingModal').classList.add('active');
+        }
+
+        // Close meeting modal
+        window.closeMeetingModal = function() {
+            document.getElementById('meetingModal').classList.remove('active');
+            document.getElementById('meetingForm').reset();
+            currentEditingMeetingId = null;
+        }
+
+        // Edit meeting
+        window.editMeeting = async function(docId) {
+            try {
+                const docSnap = await getDocs(collection(db, "meetings"));
+                
+                docSnap.forEach((d) => {
+                    if (d.id === docId) {
+                        const meeting = d.data();
+                        currentEditingMeetingId = docId;
+                        
+                        document.getElementById('modalTitle').textContent = 'Edit Meeting';
+                        document.getElementById('submitMeetingBtn').textContent = 'Update Meeting';
+                        document.getElementById('fullName').value = meeting.full_name || '';
+                        document.getElementById('phone').value = meeting.phone || '';
+                        document.getElementById('meetingLink').value = meeting.meeting_link || '';
+                        document.getElementById('status').value = meeting.status || 'pending';
+                        
+                        // Parse date_meeting
+                        if (meeting.date_meeting) {
+                            try {
+                                const date = new Date(meeting.date_meeting);
+                                const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+                                document.getElementById('dateMeeting').value = localDate.toISOString().slice(0, 16);
+                            } catch (e) {
+                                console.error("Error parsing date:", e);
+                            }
+                        }
+                        
+                        document.getElementById('meetingModal').classList.add('active');
+                    }
+                });
+            } catch (error) {
+                console.error("Error loading meeting for edit:", error);
+                alert("Error loading meeting!");
+            }
+        }
+
+        // Handle meeting form submission
+        document.getElementById('meetingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const meetingData = {
+                full_name: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                meeting_link: document.getElementById('meetingLink').value,
+                date_meeting: new Date(document.getElementById('dateMeeting').value).toISOString(),
+                status: document.getElementById('status').value,
+                created_at: currentEditingMeetingId ? undefined : new Date().toISOString()
+            };
+
+            // Remove undefined values
+            Object.keys(meetingData).forEach(key => meetingData[key] === undefined && delete meetingData[key]);
+
+            try {
+                if (currentEditingMeetingId) {
+                    // Update existing meeting
+                    await updateDoc(doc(db, "meetings", currentEditingMeetingId), meetingData);
+                    alert('Meeting updated successfully!');
+                } else {
+                    // Add new meeting
+                    await addDoc(collection(db, "meetings"), meetingData);
+                    alert('Meeting added successfully!');
+                }
+                
+                closeMeetingModal();
+            } catch (error) {
+                console.error("Error saving meeting:", error);
+                alert("Error saving meeting!");
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('meetingModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMeetingModal();
+            }
+        });
+
+        // Load data on page load
+        loadSubmissions();
+        loadMeetings();
+    </script>
+</body>
+</html>

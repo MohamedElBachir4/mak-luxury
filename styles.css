@@ -112,7 +112,7 @@ body {
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1.5rem 2rem;
+    padding: 0.8rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -126,9 +126,9 @@ body {
 }
 
 .logo-image {
-    height: 60px;
+    height: 70px;
     width: auto;
-    max-width: 200px;
+    max-width: 250px;
     object-fit: contain;
     transition: var(--transition-fast);
     flex-shrink: 0;
@@ -172,8 +172,8 @@ body {
 
 @media (max-width: 768px) {
     .logo-image {
-        height: 45px;
-        max-width: 150px;
+        height: 60px;
+        max-width: 200px;
     }
     
     .logo {
@@ -196,8 +196,8 @@ body {
     }
     
     .logo-image {
-        height: 40px;
-        max-width: 120px;
+        height: 55px;
+        max-width: 180px;
     }
 }
 
@@ -829,7 +829,7 @@ section {
 
 .achievements {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
     margin-top: var(--spacing-md);
 }
@@ -931,8 +931,8 @@ section {
 
 .off-plan-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
     margin-top: var(--spacing-lg);
 }
 
@@ -941,9 +941,13 @@ section {
     box-shadow: var(--shadow-md);
     transition: var(--transition-smooth);
     overflow: hidden;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     position: relative;
+    aspect-ratio: 4 / 5;
+    cursor: pointer;
+    height: 100%;
+    min-height: 400px;
 }
 
 .off-plan-card::before {
@@ -952,27 +956,47 @@ section {
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: var(--color-gold-gradient);
-    transform: scaleX(0);
+    bottom: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.15) 100%);
+    opacity: 0;
     transition: var(--transition-smooth);
-    transform-origin: left;
     z-index: 1;
+    pointer-events: none;
+}
+
+.off-plan-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px solid var(--color-gold);
+    opacity: 0;
+    transition: var(--transition-smooth);
+    z-index: 2;
+    pointer-events: none;
+    border-radius: 16px;
 }
 
 .off-plan-card:hover {
-    transform: translateY(-12px);
+    transform: translateY(-15px) scale(1.02);
     box-shadow: var(--shadow-xl);
-    border-color: rgba(212, 175, 55, 0.3);
+    border-color: rgba(212, 175, 55, 0.4);
 }
 
 .off-plan-card:hover::before {
-    transform: scaleX(1);
+    opacity: 1;
+}
+
+.off-plan-card:hover::after {
+    opacity: 1;
 }
 
 .off-plan-image {
     position: relative;
-    height: 300px;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
 }
 
@@ -982,10 +1006,12 @@ section {
     object-fit: cover;
     display: block;
     transition: var(--transition-smooth);
+    filter: brightness(1);
 }
 
 .off-plan-card:hover .offplan-img {
-    transform: scale(1.05);
+    transform: scale(1.15);
+    filter: brightness(1.1);
 }
 
 .badge {
@@ -1678,6 +1704,10 @@ section {
     
     .off-plan-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .off-plan-card {
+        min-height: 350px;
     }
     
     .investment-features {

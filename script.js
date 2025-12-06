@@ -3,6 +3,26 @@
 // JavaScript for animations and interactivity
 // ============================================
 
+// Firebase CDN imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// إعداد Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyDw5Kh7o7VOL6N_AwQ0NYYkBuhZZr44VTc",
+    authDomain: "mak-luxury-1f1a5.firebaseapp.com",
+    projectId: "mak-luxury-1f1a5",
+    storageBucket: "mak-luxury-1f1a5.firebasestorage.app",
+    messagingSenderId: "89094290310",
+    appId: "1:89094290310:web:c44ea5243211474f944a07"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// تصدير db للاستخدام في dashboard
+window.firestoreDB = db;
+
 // Sample project data
 const projects = [
     {
@@ -36,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeLanguage();
     initializeNavigation();
     initializeProjects();
+    initializeOffPlanProjects();
     initializeScrollAnimations();
     initializeSmoothScroll();
     initializeNewsletter();
@@ -49,16 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================
 
 function initializeLanguage() {
-    // Set initial language
     setLanguage(currentLang);
     
-    // Language switcher select
     const languageSelect = document.getElementById('languageSelect');
     if (languageSelect) {
-        // Set initial value
         languageSelect.value = currentLang;
-        
-        // Add change event listener
         languageSelect.addEventListener('change', function() {
             const lang = this.value;
             setLanguage(lang);
@@ -70,17 +86,14 @@ function setLanguage(lang) {
     currentLang = lang;
     localStorage.setItem('language', lang);
     
-    // Update HTML attributes
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     
-    // Update language select
     const languageSelect = document.getElementById('languageSelect');
     if (languageSelect) {
         languageSelect.value = lang;
     }
     
-    // Update all elements with data attributes
     document.querySelectorAll('[data-en]').forEach(element => {
         const text = element.getAttribute(`data-${lang}`);
         if (text) {
@@ -97,97 +110,7 @@ function setLanguage(lang) {
         }
     });
     
-    // Update projects data
-    if (lang === 'ar') {
-        updateProjectsToArabic();
-    } else if (lang === 'fr') {
-        updateProjectsToFrench();
-    } else {
-        updateProjectsToEnglish();
-    }
-}
-
-// French translations for projects
-const projectsFr = [
-    {
-        name: "Marina Towers",
-        location: "Dubai Marina",
-        description: "Tours résidentielles ultra-luxueuses avec vues panoramiques sur le golfe Arabique et équipements de classe mondiale.",
-        price: "À partir de 3,5 M AED",
-        image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2075&q=80"
-    },
-    {
-        name: "Downtown Residences",
-        location: "Downtown Dubai",
-        description: "Espaces de vie sophistiqués au cœur de Dubaï, à quelques pas du Burj Khalifa et du Dubai Mall.",
-        price: "À partir de 5,2 M AED",
-        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2053&q=80"
-    },
-    {
-        name: "Palm Villas",
-        location: "Palm Jumeirah",
-        description: "Villas exclusives en bord de mer avec piscines privées et accès direct aux plages immaculées.",
-        price: "À partir de 15 M AED",
-        image: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-    }
-];
-
-// Arabic translations for projects
-const projectsAr = [
-    {
-        name: "أبراج مارينا",
-        location: "دبي مارينا",
-        description: "أبراج سكنية فاخرة للغاية بإطلالات بانورامية على الخليج العربي ومرافق عالمية المستوى.",
-        price: "من 3.5 مليون درهم",
-        image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2075&q=80"
-    },
-    {
-        name: "سكنيات وسط المدينة",
-        location: "وسط دبي",
-        description: "مساحات معيشة راقية في قلب دبي، على بعد خطوات من برج خليفة ودبي مول.",
-        price: "من 5.2 مليون درهم",
-        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2053&q=80"
-    },
-    {
-        name: "فلل النخلة",
-        location: "نخلة جميرا",
-        description: "فلل حصرية على الواجهة البحرية مع مسابح خاصة ووصول مباشر للشواطئ البكر.",
-        price: "من 15 مليون درهم",
-        image: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-    }
-];
-
-function updateProjectsToArabic() {
-    const projectsGrid = document.getElementById('projectsGrid');
-    if (projectsGrid && projectsGrid.children.length > 0) {
-        projectsGrid.innerHTML = '';
-        projectsAr.forEach((project, index) => {
-            const projectCard = createProjectCard(project, index, 'ar');
-            projectsGrid.appendChild(projectCard);
-        });
-    }
-}
-
-function updateProjectsToEnglish() {
-    const projectsGrid = document.getElementById('projectsGrid');
-    if (projectsGrid && projectsGrid.children.length > 0) {
-        projectsGrid.innerHTML = '';
-        projects.forEach((project, index) => {
-            const projectCard = createProjectCard(project, index, 'en');
-            projectsGrid.appendChild(projectCard);
-        });
-    }
-}
-
-function updateProjectsToFrench() {
-    const projectsGrid = document.getElementById('projectsGrid');
-    if (projectsGrid && projectsGrid.children.length > 0) {
-        projectsGrid.innerHTML = '';
-        projectsFr.forEach((project, index) => {
-            const projectCard = createProjectCard(project, index, 'fr');
-            projectsGrid.appendChild(projectCard);
-        });
-    }
+    initializeProjects();
 }
 
 // ============================================
@@ -200,7 +123,6 @@ function initializeNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const logo = document.querySelector('.logo');
 
-    // Toggle mobile menu
     if (hamburger) {
         hamburger.addEventListener('click', function() {
             hamburger.classList.toggle('active');
@@ -208,7 +130,6 @@ function initializeNavigation() {
         });
     }
 
-    // Close menu when clicking on a link
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
             hamburger.classList.remove('active');
@@ -216,7 +137,6 @@ function initializeNavigation() {
         });
     });
 
-    // Refresh page when clicking on logo or brand text
     if (logo) {
         logo.style.cursor = 'pointer';
         logo.addEventListener('click', function() {
@@ -224,7 +144,6 @@ function initializeNavigation() {
         });
     }
 
-    // Close menu when clicking outside
     document.addEventListener('click', function(event) {
         const isClickInsideNav = navMenu.contains(event.target) || hamburger.contains(event.target);
         if (!isClickInsideNav && navMenu.classList.contains('active')) {
@@ -264,23 +183,27 @@ function initializeProjects() {
     
     if (!projectsGrid) return;
 
-    // Use current language to initialize projects
-    if (currentLang === 'ar') {
-        projectsAr.forEach((project, index) => {
-            const projectCard = createProjectCard(project, index, 'ar');
-            projectsGrid.appendChild(projectCard);
-        });
-    } else if (currentLang === 'fr') {
-        projectsFr.forEach((project, index) => {
-            const projectCard = createProjectCard(project, index, 'fr');
-            projectsGrid.appendChild(projectCard);
-        });
-    } else {
-        projects.forEach((project, index) => {
-            const projectCard = createProjectCard(project, index, 'en');
-            projectsGrid.appendChild(projectCard);
-        });
-    }
+    projectsGrid.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Loading developments...</div>';
+
+    const defaultImages = [
+        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80',
+        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2053&q=80',
+        'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+    ];
+    
+    projectsGrid.innerHTML = '';
+    
+    defaultImages.forEach((imageUrl, index) => {
+        const project = {
+            name: '',
+            location: '',
+            description: '',
+            price: '',
+            image: imageUrl
+        };
+        const projectCard = createProjectCard(project, index, currentLang);
+        projectsGrid.appendChild(projectCard);
+    });
 }
 
 function createProjectCard(project, index, lang = 'en') {
@@ -289,14 +212,12 @@ function createProjectCard(project, index, lang = 'en') {
     card.style.opacity = '0';
     card.style.transform = 'translateY(30px)';
     
-    // Add delay for staggered animation
     setTimeout(() => {
         card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
         card.style.opacity = '1';
         card.style.transform = 'translateY(0)';
     }, index * 100);
 
-    // Create image element separately for better error handling
     const img = document.createElement('img');
     img.src = project.image;
     img.alt = project.name;
@@ -307,17 +228,81 @@ function createProjectCard(project, index, lang = 'en') {
         this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'600\'%3E%3Crect fill=\'%231a1a1a\' width=\'400\' height=\'600\'/%3E%3Ctext fill=\'%23fff\' font-family=\'Inter\' font-size=\'16\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3E' + encodeURIComponent(project.name) + '%3C/text%3E%3C/svg%3E';
     };
 
-    card.innerHTML = `
-        <div class="project-overlay">
-            <h3 class="project-name">${project.name}</h3>
-            <p class="project-location">${project.location}</p>
-            <p class="project-description">${project.description}</p>
-            <div class="project-price">${project.price}</div>
-        </div>
-    `;
+    const hasInfo = project.name || project.location || project.description || project.price;
     
-    // Insert image at the beginning
+    if (hasInfo) {
+        card.innerHTML = `
+            <div class="project-overlay">
+                ${project.name ? `<h3 class="project-name">${project.name}</h3>` : ''}
+                ${project.location ? `<p class="project-location">${project.location}</p>` : ''}
+                ${project.description ? `<p class="project-description">${project.description}</p>` : ''}
+                ${project.price ? `<div class="project-price">${project.price}</div>` : ''}
+            </div>
+        `;
+    } else {
+        card.innerHTML = '';
+    }
+    
     card.insertBefore(img, card.firstChild);
+
+    return card;
+}
+
+// ============================================
+// OFF-PLAN PROJECTS GRID
+// ============================================
+
+function initializeOffPlanProjects() {
+    const offPlanGrid = document.getElementById('offPlanGrid');
+    
+    if (!offPlanGrid) return;
+
+    const defaultOffPlanImages = [
+        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+        'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+        'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+        'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+    ];
+    
+    offPlanGrid.innerHTML = '';
+    
+    defaultOffPlanImages.forEach((imageUrl, index) => {
+        const project = {
+            title: '',
+            location: '',
+            description: '',
+            price: '',
+            image: imageUrl,
+            badge: 'New Launch'
+        };
+        const projectCard = createOffPlanCard(project, index);
+        offPlanGrid.appendChild(projectCard);
+    });
+}
+
+function createOffPlanCard(project, index) {
+    const card = document.createElement('div');
+    card.className = 'off-plan-card';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    
+    setTimeout(() => {
+        card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+    }, index * 100);
+
+    const img = document.createElement('img');
+    img.src = project.image;
+    img.alt = 'Off-plan Project';
+    img.className = 'offplan-img';
+    img.loading = 'lazy';
+    img.onerror = function() {
+        this.onerror = null;
+        this.src = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'500\'%3E%3Crect fill=\'%231a1a1a\' width=\'400\' height=\'500\'/%3E%3C/svg%3E';
+    };
+    
+    card.appendChild(img);
 
     return card;
 }
@@ -331,14 +316,13 @@ function initializeSmoothScroll() {
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
             
-            // Skip if it's just "#"
             if (href === '#') return;
             
             const target = document.querySelector(href);
             
             if (target) {
                 e.preventDefault();
-                const offsetTop = target.offsetTop - 80; // Account for fixed navbar
+                const offsetTop = target.offsetTop - 80;
                 
                 window.scrollTo({
                     top: offsetTop,
@@ -368,7 +352,6 @@ function initializeScrollAnimations() {
         });
     }, observerOptions);
 
-    // Observe elements for animation
     const animateElements = document.querySelectorAll('.section-header, .about-text, .about-image, .off-plan-card, .feature-item, .visual-item, .achievement-item');
     
     animateElements.forEach((el, index) => {
@@ -392,7 +375,6 @@ function initializeNewsletter() {
             
             const email = this.querySelector('input[type="email"]').value;
             
-            // Simulate form submission
             const button = this.querySelector('button');
             const originalText = button.textContent;
             
@@ -415,7 +397,7 @@ function initializeNewsletter() {
 }
 
 // ============================================
-// PARALLAX EFFECT (Optional Enhancement)
+// PARALLAX EFFECT
 // ============================================
 
 window.addEventListener('scroll', function() {
@@ -428,10 +410,9 @@ window.addEventListener('scroll', function() {
 });
 
 // ============================================
-// CURSOR EFFECT (Premium Enhancement)
+// CURSOR EFFECT
 // ============================================
 
-// Create custom cursor effect for premium feel
 let cursor = null;
 
 function createCustomCursor() {
@@ -451,7 +432,6 @@ function createCustomCursor() {
     document.body.appendChild(cursor);
 }
 
-// Only enable custom cursor on desktop
 if (window.innerWidth > 768) {
     createCustomCursor();
     
@@ -463,7 +443,6 @@ if (window.innerWidth > 768) {
         }
     });
     
-    // Hide default cursor on interactive elements
     const interactiveElements = document.querySelectorAll('a, button, .project-card, .off-plan-card');
     interactiveElements.forEach(el => {
         el.addEventListener('mouseenter', function() {
@@ -498,7 +477,6 @@ window.addEventListener('load', function() {
 // PERFORMANCE OPTIMIZATION
 // ============================================
 
-// Throttle scroll events for better performance
 function throttle(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -511,62 +489,69 @@ function throttle(func, wait) {
     };
 }
 
-// Apply throttling to scroll handlers
 const throttledScroll = throttle(function() {
-    // Scroll-based animations can be added here
+    // Scroll-based animations
 }, 16);
 
 window.addEventListener('scroll', throttledScroll);
 
 // ============================================
-// CONTACT FORM
+// CONTACT FORM - حفظ في Firebase فقط
 // ============================================
 
 function initializeContactForm() {
     const contactForm = document.getElementById('contactForm');
     
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Get form data
             const formData = {
                 firstName: document.getElementById('firstName').value,
                 lastName: document.getElementById('lastName').value,
                 phoneCode: document.getElementById('phoneCode').value,
                 phoneNumber: document.getElementById('phoneNumber').value,
                 email: document.getElementById('email').value,
-                language: document.getElementById('language').value
+                language: document.getElementById('language').value,
+                createdAt: new Date()
             };
             
-            // Simulate form submission
             const submitBtn = contactForm.querySelector('.submit-btn');
-            const originalText = submitBtn.querySelector('span').textContent;
             const originalHTML = submitBtn.innerHTML;
             
             submitBtn.disabled = true;
             submitBtn.querySelector('span').textContent = currentLang === 'ar' ? 'جاري الإرسال...' : currentLang === 'fr' ? 'Envoi en cours...' : 'Submitting...';
             submitBtn.style.opacity = '0.7';
             
-            // Simulate API call
-            setTimeout(() => {
+            try {
+                // حفظ في Firebase
+                await addDoc(collection(db, "contacts"), formData);
+                
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
                 submitBtn.querySelector('span').textContent = currentLang === 'ar' ? 'تم الإرسال!' : currentLang === 'fr' ? 'Envoyé!' : 'Submitted!';
                 submitBtn.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
                 
-                // Reset form
                 contactForm.reset();
                 
-                // Reset button after 2 seconds
                 setTimeout(() => {
                     submitBtn.innerHTML = originalHTML;
                     submitBtn.style.background = '';
                 }, 2000);
-            }, 1500);
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.querySelector('span').textContent = 'Error! Try again';
+                submitBtn.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+                
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalHTML;
+                    submitBtn.style.background = '';
+                }, 3000);
+            }
         });
         
-        // Add floating label effect
         const inputs = contactForm.querySelectorAll('input, select');
         inputs.forEach(input => {
             input.addEventListener('focus', function() {
@@ -590,7 +575,6 @@ function initializeHeroVideo() {
     const heroVideo = document.querySelector('.hero-video');
     
     if (heroVideo) {
-        // محاولة تحميل الفيديو بمسارات مختلفة (للتأكد من العمل على GitHub Pages)
         const videoSources = ['./vv.mp4', 'vv.mp4', '/vv.mp4'];
         let currentSourceIndex = 0;
         
@@ -601,20 +585,16 @@ function initializeHeroVideo() {
             }
         }
         
-        // ضمان تحميل الفيديو بجودة عالية
         heroVideo.addEventListener('loadedmetadata', function() {
-            // محاولة تشغيل الفيديو بجودة عالية
             if (heroVideo.videoWidth > 0 && heroVideo.videoHeight > 0) {
                 heroVideo.play().catch(function(error) {
                     console.log('Video autoplay prevented:', error);
-                    // محاولة مسار آخر إذا فشل
                     currentSourceIndex++;
                     tryLoadVideo();
                 });
             }
         });
         
-        // معالجة الأخطاء - محاولة مسار آخر
         heroVideo.addEventListener('error', function() {
             console.log('Video load error, trying next source...');
             currentSourceIndex++;
@@ -623,20 +603,15 @@ function initializeHeroVideo() {
             }
         });
         
-        // تحسين الجودة عند التحميل
         heroVideo.addEventListener('canplay', function() {
-            // ضمان عدم ضغط الفيديو
             heroVideo.style.imageRendering = 'high-quality';
         });
         
-        // إعادة تشغيل الفيديو عند الحاجة لضمان الجودة
         heroVideo.addEventListener('ended', function() {
             this.currentTime = 0;
             this.play();
         });
         
-        // محاولة تحميل الفيديو فوراً
         tryLoadVideo();
     }
 }
-
